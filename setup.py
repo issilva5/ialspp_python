@@ -11,7 +11,7 @@ eigen_include_dir = os.path.join(eigen_path, "include/eigen3")
 
 ext_modules = [
     Extension(
-        'IALS++',  # Name of the generated module
+        'ialspp',  # Name of the generated module
         [
             'ialspp/bindings.cc',
             # Add other source files here
@@ -23,7 +23,7 @@ ext_modules = [
 ]
 
 setup(
-    name='IALS++',
+    name='ialspp',
     version='0.1',
     author='Ítallo Silva',
     author_email='itallo@copin.ufcg.edu.br',
