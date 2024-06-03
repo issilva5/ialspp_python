@@ -32,8 +32,14 @@ setup(
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
     install_requires=[
-        'pybind11>=2.5.0',
-        # Add other dependencies here
+        'numpy==1.26.4',
+        'pandas==2.2.2',
+        'pybind11==2.12.0',
+        'python-dateutil==2.9.0.post0',
+        'pytz==2024.1',
+        'setuptools==70.0.0',
+        'six==1.16.0',
+        'tzdata==2024.1'
     ],
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
