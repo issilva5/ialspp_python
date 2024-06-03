@@ -1,1 +1,1 @@
-from .ialspp import IALSppRecommender, Dataset, SaveModel, LoadModel
+from . import IALSppRecommender, Dataset, SaveModel, LoadModel
