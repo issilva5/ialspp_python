@@ -5,7 +5,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(recommender_binding, m) {
+PYBIND11_MODULE(ialspp, m) {
 
     m.def("SaveModel", &SaveModel);
     m.def("LoadModel", &LoadModel);
