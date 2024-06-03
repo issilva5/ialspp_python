@@ -1,0 +1,12 @@
+.venv
+.vscode
+ml-20m
+msd
+eigen-3.3.9
+*bin
+lib
+build
+main.py
+Makefile
+*.so
+requirements.txt
