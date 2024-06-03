@@ -31,8 +31,8 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
-    packages=['ialspp', 'stubs'],
-    package_data={'stubs': ['ialspp/*.pyi']},
+    packages=['ialspp', 'ialspp-stubs'],
+    package_data={'ialspp-stubs': ['*.pyi']},
     include_package_data=True,
     install_requires=[
         'numpy==1.26.4',
