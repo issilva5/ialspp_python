@@ -31,7 +31,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
-    packages=['ialspp', 'ialspp-stubs'],
+    packages=['ialspp-stubs'],
     package_data={'ialspp-stubs': ['*.pyi']},
     include_package_data=True,
     install_requires=[
