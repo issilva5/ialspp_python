@@ -32,6 +32,7 @@ setup(
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
     package_data={'stubs': ['*.pyi']},
+    include_package_data=True,
     install_requires=[
         'numpy==1.26.4',
         'pandas==2.2.2',
