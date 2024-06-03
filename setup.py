@@ -31,6 +31,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
+    package_data={'stubs': ['*.pyi']},
     install_requires=[
         'numpy==1.26.4',
         'pandas==2.2.2',

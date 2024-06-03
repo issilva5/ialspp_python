@@ -10,3 +10,4 @@ main.py
 Makefile
 *.so
 requirements.txt
+*egg-info
