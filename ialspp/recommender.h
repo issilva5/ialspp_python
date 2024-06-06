@@ -69,7 +69,7 @@ class Dataset {
     max_item_ = -1;
     num_tuples_ = 0;
     std::ifstream infile(filename);
-    std::string line;
+    std::string line = "oba";
 
     int user, item;
     std::string users, items;
