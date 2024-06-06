@@ -85,6 +85,7 @@ class Dataset {
       int pos = line.find(',');
       users = line.substr(0, pos);
       items = line.substr(pos + 1);
+      std::cout << users << " " << items << std::endl;
 
       if (!string_id) {
         user = std::atoi(users.c_str());
