@@ -97,7 +97,7 @@ Dataset::Dataset(const std::string& filename, bool string_id = false) {
   // Read the data.
   while (std::getline(infile, line)) {
 
-    int user, item = -1, -1;
+    int user = -1, item = -1;
 
     int pos = line.find(',');
     users = line.substr(0, pos).c_str();
