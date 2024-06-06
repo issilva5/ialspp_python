@@ -28,7 +28,7 @@ IALS++ is an efficient matrix factorization algorithm for collaborative filterin
 To install the package, you need to have `pybind11` and `Eigen` installed. You can install the package directly from the GitHub repository.
 
 ```bash
-pip install git+https://github.com/your-username/ialspp-python-binding.git
+pip install git+https://github.com/issilva5/ialspp_python.git
 ```
 
 ### Dependencies
