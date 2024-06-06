@@ -65,8 +65,6 @@ class Encoder {
 class Dataset {
  public:
   Dataset(const std::string& filename, bool string_id = false) {
-    std::cout << "HIIIIII!" << filename << std::endl;
-
     max_user_ = -1;
     max_item_ = -1;
     num_tuples_ = 0;
@@ -76,12 +74,9 @@ class Dataset {
 
     // Discard header.
     assert(std::getline(infile, line));
-    std::cout << line << std::endl;
 
     // Read the data.
     while (std::getline(infile, line)) {
-
-      std::cout << line << std::endl;
 
       int user = -1, item = -1;
 
@@ -95,7 +90,6 @@ class Dataset {
       } else {
         user = user_encoder_.insert(users);
         item = item_encoder_.insert(items);
-        std::cout << user << "\t" << item << std::endl;
       }
 
       by_user_[user].push_back({item, num_tuples_});
