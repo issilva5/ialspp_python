@@ -65,7 +65,7 @@ class Encoder {
 class Dataset {
  public:
   Dataset(const std::string& filename, bool string_id = false) {
-    std::cout << "HIIIIII!" << std::endl;
+    std::cout << "HIIIIII!" << filename << std::endl;
 
     max_user_ = -1;
     max_item_ = -1;
@@ -76,16 +76,18 @@ class Dataset {
 
     // Discard header.
     assert(std::getline(infile, line));
+    std::cout << line << std::endl;
 
     // Read the data.
     while (std::getline(infile, line)) {
+
+      std::cout << line << std::endl;
 
       int user = -1, item = -1;
 
       int pos = line.find(',');
       users = line.substr(0, pos);
       items = line.substr(pos + 1);
-      std::cout << users << " " << items << std::endl;
 
       if (!string_id) {
         user = std::atoi(users.c_str());
