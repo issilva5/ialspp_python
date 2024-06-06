@@ -100,12 +100,12 @@ Dataset::Dataset(const std::string& filename, bool string_id = false) {
     int user = -1, item = -1;
 
     int pos = line.find(',');
-    users = line.substr(0, pos).c_str();
-    items = line.substr(pos + 1).c_str();
+    users = line.substr(0, pos);
+    items = line.substr(pos + 1);
 
     if (!string_id) {
-      user = std::atoi(users);
-      item = std::atoi(items);
+      user = std::atoi(users.c_str());
+      item = std::atoi(items.c_str());
     } else {
       user = user_encoder_.insert(users);
       item = item_encoder_.insert(items);
