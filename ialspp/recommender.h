@@ -64,7 +64,7 @@ class Encoder {
 
 class Dataset {
  public:
-  explicit Dataset(const std::string& filename, bool string_id);
+  Dataset(const std::string& filename, bool string_id = false);
   const SpMatrix& by_user() const { return by_user_; }
   const SpMatrix& by_item() const { return by_item_; }
   const int max_user() const { return max_user_; }
@@ -84,6 +84,9 @@ class Dataset {
 };
 
 Dataset::Dataset(const std::string& filename, bool string_id = false) {
+
+  std::cout << "HIIIIII!" << std::endl;
+
   max_user_ = -1;
   max_item_ = -1;
   num_tuples_ = 0;
@@ -109,6 +112,7 @@ Dataset::Dataset(const std::string& filename, bool string_id = false) {
     } else {
       user = user_encoder_.insert(users);
       item = item_encoder_.insert(items);
+      std::cout << user << "\t" << item << std:endl;
     }
 
     by_user_[user].push_back({item, num_tuples_});
