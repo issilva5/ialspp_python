@@ -3,6 +3,16 @@ import numpy
 import typing
 __all__ = ['Dataset', 'EigenMatrix', 'IALSppRecommender', 'LoadModel', 'ProjectBlock', 'Recommender', 'SaveModel']
 
+class Encoder:
+    def insert(self, s: str) -> int:
+        ...
+    def encode(self, s: str) -> int:
+        ...
+    def decode(self, i: int) -> str:
+        ...
+    def size(self) -> int:
+        ...
+
 class Dataset:
     def __init__(self, filename: str) -> None:
         ...

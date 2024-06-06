@@ -32,38 +32,85 @@
 using SpVector = std::vector<std::pair<int, int>>;
 using SpMatrix = std::unordered_map<int, SpVector>;
 
+class Encoder {
+  public:
+    int insert(std::string s) {
+      if(stoi.contains(s)) stoi[s];
+
+      stoi[s] = n;
+      itos[n] = s;
+      n++;
+
+      return stoi[s];
+    }
+
+    int encode(std::string s) {
+      if(stoi.contains(s)) return stoi[s];
+      return -1;
+    }
+
+    std::string decode(int i) {
+      if(itos.contains(i)) return itos[i];
+      return -1;
+    }
+
+    const int size() const { return n; }
+  
+  private:
+    std::unordered_map<std::string, int> stoi;
+    std::unordered_map<int, std::string> itos;
+    int n = 0;
+}
+
 class Dataset {
  public:
-  explicit Dataset(const std::string& filename);
+  explicit Dataset(const std::string& filename, bool string_id);
   const SpMatrix& by_user() const { return by_user_; }
   const SpMatrix& by_item() const { return by_item_; }
   const int max_user() const { return max_user_; }
   const int max_item() const { return max_item_; }
   const int num_tuples() const { return num_tuples_; }
+  const Encoder& user_encoder() const { return user_encoder_; }
+  const Encoder& item_encoder() const { return item_encoder_; }
 
  private:
   SpMatrix by_user_;
   SpMatrix by_item_;
+  Encoder user_encoder_;
+  Encoder item_encoder_;
   int max_user_;
   int max_item_;
   int num_tuples_;
 };
 
-Dataset::Dataset(const std::string& filename) {
+Dataset::Dataset(const std::string& filename, bool string_id) {
   max_user_ = -1;
   max_item_ = -1;
   num_tuples_ = 0;
   std::ifstream infile(filename);
   std::string line;
+  std::string users, items;
 
   // Discard header.
   assert(std::getline(infile, line));
 
   // Read the data.
   while (std::getline(infile, line)) {
+
+    int user, item = -1, -1;
+
     int pos = line.find(',');
-    int user = std::atoi(line.substr(0, pos).c_str());
-    int item = std::atoi(line.substr(pos + 1).c_str());
+    users = line.substr(0, pos).c_str();
+    items = line.substr(pos + 1).c_str();
+
+    if (!string_id) {
+      user = std::atoi(users);
+      item = std::atoi(items);
+    } else {
+      user = user_encoder_.insert(users);
+      item = item_encoder_.insert(items);
+    }
+
     by_user_[user].push_back({item, num_tuples_});
     by_item_[item].push_back({user, num_tuples_});
     max_user_ = std::max(max_user_, user);

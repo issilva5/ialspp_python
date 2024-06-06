@@ -45,6 +45,13 @@ PYBIND11_MODULE(ialspp, m) {
         .def("max_user", &Dataset::max_user)
         .def("max_item", &Dataset::max_item)
         .def("num_tuples", &Dataset::num_tuples);
+    
+    py::class_<Encoder>(m, "Encoder")
+        .def(py::init<>())
+        .def("insert", &Encoder::insert)
+        .def("encode", &Encoder::encode)
+        .def("decode", &Encoder::decode)
+        .def("size", &Encoder::size);
 
     m.def("ProjectBlock", &ProjectBlock, "Project a block of embeddings");
 }
