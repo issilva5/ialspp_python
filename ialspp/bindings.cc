@@ -39,7 +39,7 @@ PYBIND11_MODULE(ialspp, m) {
         .def("Score", &IALSppRecommender::Score);
 
     py::class_<Dataset>(m, "Dataset")
-        .def(py::init<const std::string&>())
+        .def(py::init<const std::string&, bool>())
         .def("by_user", &Dataset::by_user)
         .def("by_item", &Dataset::by_item)
         .def("max_user", &Dataset::max_user)
