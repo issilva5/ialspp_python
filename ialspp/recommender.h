@@ -92,7 +92,7 @@ class Dataset {
       } else {
         user = user_encoder_.insert(users);
         item = item_encoder_.insert(items);
-        std::cout << user << "\t" << item << std:endl;
+        std::cout << user << "\t" << item << std::endl;
       }
 
       by_user_[user].push_back({item, num_tuples_});
