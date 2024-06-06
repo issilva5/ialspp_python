@@ -17,7 +17,7 @@ ext_modules = [
             # Add other source files here
         ],
         include_dirs=[pybind11.get_include(), eigen_include_dir],
-        extra_compile_args=['-std=c++20', '-O3', '-Wall'],
+        extra_compile_args=['-std=c++11', '-O3', '-Wall'],
         language='c++'
     ),
 ]

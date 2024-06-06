@@ -35,7 +35,7 @@ using SpMatrix = std::unordered_map<int, SpVector>;
 class Encoder {
   public:
     int insert(std::string s) {
-      if(stoi.contains(s)) stoi[s];
+      if(stoi.find(s) != stoi.end()) stoi[s];
 
       stoi[s] = n;
       itos[n] = s;
@@ -45,13 +45,13 @@ class Encoder {
     }
 
     int encode(std::string s) {
-      if(stoi.contains(s)) return stoi[s];
+      if(stoi.find(s) != stoi.end()) return stoi[s];
       return -1;
     }
 
     std::string decode(int i) {
-      if(itos.contains(i)) return itos[i];
-      return -1;
+      if(itos.find(i) != itos.end()) return itos[i];
+      return "";
     }
 
     const int size() const { return n; }
@@ -60,11 +60,11 @@ class Encoder {
     std::unordered_map<std::string, int> stoi;
     std::unordered_map<int, std::string> itos;
     int n = 0;
-}
+};
 
 class Dataset {
  public:
-  explicit Dataset(const std::string& filename, bool string_id = false);
+  explicit Dataset(const std::string& filename, bool string_id);
   const SpMatrix& by_user() const { return by_user_; }
   const SpMatrix& by_item() const { return by_item_; }
   const int max_user() const { return max_user_; }
