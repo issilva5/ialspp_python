@@ -44,6 +44,8 @@ PYBIND11_MODULE(ialspp, m) {
         .def("by_item", &Dataset::by_item)
         .def("max_user", &Dataset::max_user)
         .def("max_item", &Dataset::max_item)
+        .def("user_encoder", &Dataset::user_encoder)
+        .def("item_encoder", &Dataset::item_encoder)
         .def("num_tuples", &Dataset::num_tuples);
     
     py::class_<Encoder>(m, "Encoder")

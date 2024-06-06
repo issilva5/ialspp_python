@@ -70,6 +70,8 @@ class Dataset {
     num_tuples_ = 0;
     std::ifstream infile(filename);
     std::string line;
+
+    int user, item;
     std::string users, items;
 
     // Discard header.
@@ -77,8 +79,6 @@ class Dataset {
 
     // Read the data.
     while (std::getline(infile, line)) {
-
-      int user = -1, item = -1;
 
       int pos = line.find(',');
       users = line.substr(0, pos);
