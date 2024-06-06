@@ -36,7 +36,6 @@ pip install git+https://github.com/issilva5/ialspp_python.git
 Make sure to install the necessary dependencies:
 
 ```bash
-pip install pybind11
 brew install eigen
 ```
 

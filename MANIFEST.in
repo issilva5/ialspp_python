@@ -1,3 +1,0 @@
-include README.md
-include stubs/ialspp/*.pyi
-recursive-include ialspp *.h *.cc

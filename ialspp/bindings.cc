@@ -39,12 +39,21 @@ PYBIND11_MODULE(ialspp, m) {
         .def("Score", &IALSppRecommender::Score);
 
     py::class_<Dataset>(m, "Dataset")
-        .def(py::init<const std::string&>())
+        .def(py::init<const std::string&, bool>(), py::arg("filename"), py::arg("string_id") = false)
         .def("by_user", &Dataset::by_user)
         .def("by_item", &Dataset::by_item)
         .def("max_user", &Dataset::max_user)
         .def("max_item", &Dataset::max_item)
+        .def("user_encoder", &Dataset::user_encoder)
+        .def("item_encoder", &Dataset::item_encoder)
         .def("num_tuples", &Dataset::num_tuples);
+    
+    py::class_<Encoder>(m, "Encoder")
+        .def(py::init<>())
+        .def("insert", &Encoder::insert)
+        .def("encode", &Encoder::encode)
+        .def("decode", &Encoder::decode)
+        .def("size", &Encoder::size);
 
     m.def("ProjectBlock", &ProjectBlock, "Project a block of embeddings");
 }
