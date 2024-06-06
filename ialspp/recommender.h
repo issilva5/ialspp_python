@@ -64,7 +64,51 @@ class Encoder {
 
 class Dataset {
  public:
-  Dataset(const std::string& filename, bool string_id = false);
+  Dataset(const std::string& filename, bool string_id = false) {
+    std::cout << "HIIIIII!" << std::endl;
+
+    max_user_ = -1;
+    max_item_ = -1;
+    num_tuples_ = 0;
+    std::ifstream infile(filename);
+    std::string line;
+    std::string users, items;
+
+    // Discard header.
+    assert(std::getline(infile, line));
+
+    // Read the data.
+    while (std::getline(infile, line)) {
+
+      int user = -1, item = -1;
+
+      int pos = line.find(',');
+      users = line.substr(0, pos);
+      items = line.substr(pos + 1);
+
+      if (!string_id) {
+        user = std::atoi(users.c_str());
+        item = std::atoi(items.c_str());
+      } else {
+        user = user_encoder_.insert(users);
+        item = item_encoder_.insert(items);
+        std::cout << user << "\t" << item << std:endl;
+      }
+
+      by_user_[user].push_back({item, num_tuples_});
+      by_item_[item].push_back({user, num_tuples_});
+      max_user_ = std::max(max_user_, user);
+      max_item_ = std::max(max_item_, item);
+      ++num_tuples_;
+    }
+    std::cout << "max_user=" << max_user()
+              << "\tmax_item=" << max_item()
+              << "\tdistinct user=" << by_user_.size()
+              << "\tdistinct item=" << by_item_.size()
+              << "\tnum_tuples=" << num_tuples()
+              << std::endl;
+  }
+
   const SpMatrix& by_user() const { return by_user_; }
   const SpMatrix& by_item() const { return by_item_; }
   const int max_user() const { return max_user_; }
@@ -82,52 +126,6 @@ class Dataset {
   int max_item_;
   int num_tuples_;
 };
-
-Dataset::Dataset(const std::string& filename, bool string_id = false) {
-
-  std::cout << "HIIIIII!" << std::endl;
-
-  max_user_ = -1;
-  max_item_ = -1;
-  num_tuples_ = 0;
-  std::ifstream infile(filename);
-  std::string line;
-  std::string users, items;
-
-  // Discard header.
-  assert(std::getline(infile, line));
-
-  // Read the data.
-  while (std::getline(infile, line)) {
-
-    int user = -1, item = -1;
-
-    int pos = line.find(',');
-    users = line.substr(0, pos);
-    items = line.substr(pos + 1);
-
-    if (!string_id) {
-      user = std::atoi(users.c_str());
-      item = std::atoi(items.c_str());
-    } else {
-      user = user_encoder_.insert(users);
-      item = item_encoder_.insert(items);
-      std::cout << user << "\t" << item << std:endl;
-    }
-
-    by_user_[user].push_back({item, num_tuples_});
-    by_item_[item].push_back({user, num_tuples_});
-    max_user_ = std::max(max_user_, user);
-    max_item_ = std::max(max_item_, item);
-    ++num_tuples_;
-  }
-  std::cout << "max_user=" << max_user()
-            << "\tmax_item=" << max_item()
-            << "\tdistinct user=" << by_user_.size()
-            << "\tdistinct item=" << by_item_.size()
-            << "\tnum_tuples=" << num_tuples()
-            << std::endl;
-}
 
 class Recommender {
  public:
