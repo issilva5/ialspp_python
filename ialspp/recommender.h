@@ -69,19 +69,17 @@ class Dataset {
     max_item_ = -1;
     num_tuples_ = 0;
     std::ifstream infile(filename);
-    std::string line = "oba";
+    std::string line;
 
     int user, item;
     std::string users, items;
 
     // Discard header.
-    assert(std::getline(infile, line));
-    std::cout << line << std::endl;
+    std::getline(infile, line);
 
     // Read the data.
     while (std::getline(infile, line)) {
-      std::cout << line << std::endl;
-
+      
       int pos = line.find(',');
       users = line.substr(0, pos);
       items = line.substr(pos + 1);
