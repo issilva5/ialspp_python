@@ -35,7 +35,7 @@ using SpMatrix = std::unordered_map<int, SpVector>;
 class Encoder {
   public:
     int insert(std::string s) {
-      if(stoi.find(s) != stoi.end()) stoi[s];
+      if(stoi.find(s) != stoi.end()) return stoi[s];
 
       stoi[s] = n;
       itos[n] = s;
