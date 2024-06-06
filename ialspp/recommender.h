@@ -76,9 +76,11 @@ class Dataset {
 
     // Discard header.
     assert(std::getline(infile, line));
+    std::cout << line << std::endl;
 
     // Read the data.
     while (std::getline(infile, line)) {
+      std::cout << line << std::endl;
 
       int pos = line.find(',');
       users = line.substr(0, pos);
