@@ -4,10 +4,32 @@ import pybind11
 
 import os
 import subprocess
+import platform
+
+def get_eigen_include_dir():
+    system = platform.system()
+    
+    if system == 'Darwin':  # macOS
+        try:
+            eigen_path = subprocess.check_output(["brew", "--prefix", "eigen"]).strip().decode("utf-8")
+            eigen_include_dir = os.path.join(eigen_path, "include/eigen3")
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("Eigen not found via Homebrew. Make sure Eigen is installed.") from e
+    elif system == 'Linux':
+        try:
+            # Trying to locate eigen in common install paths
+            eigen_include_dir = "/usr/include/eigen3"
+            if not os.path.exists(eigen_include_dir):
+                raise RuntimeError("Eigen not found in /usr/include/eigen3. Make sure Eigen is installed.")
+        except Exception as e:
+            raise RuntimeError("Eigen not found via standard Linux paths. Ensure Eigen is installed.") from e
+    else:
+        raise RuntimeError("Unsupported operating system.")
+    
+    return eigen_include_dir
 
 # Get the Eigen path using Homebrew
-eigen_path = subprocess.check_output(["brew", "--prefix", "eigen"]).strip().decode("utf-8")
-eigen_include_dir = os.path.join(eigen_path, "include/eigen3")
+eigen_include_dir = get_eigen_include_dir()
 
 ext_modules = [
     Extension(
