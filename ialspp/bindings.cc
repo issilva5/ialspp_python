@@ -7,8 +7,8 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(ialspp, m) {
 
-    m.def("SaveModel", &SaveModel);
-    m.def("LoadModel", &LoadModel);
+    m.def("SaveModel", &SaveModel, py::arg("path"), py::arg("model"));
+    m.def("LoadModel", &LoadModel, py::arg("path"));
 
     // Register Eigen matrix type conversion
     py::class_<Eigen::Matrix<float, -1, 1, 0, -1, 1>>(m, "EigenMatrix")
@@ -25,18 +25,27 @@ PYBIND11_MODULE(ialspp, m) {
         });
 
     py::class_<Recommender>(m, "Recommender")
-        .def("Train", &Recommender::Train)
-        .def("EvaluateDataset", &Recommender::EvaluateDataset)
-        .def("EvaluateUser", &Recommender::EvaluateUser)
-        .def("Score", &Recommender::Score);
+        .def("Train", &Recommender::Train, py::arg("dataset"))
+        .def("EvaluateDataset", &Recommender::EvaluateDataset, py::arg("test_train_data"), py::arg("test_test_data"))
+        .def("EvaluateUser", &Recommender::EvaluateUser, py::arg("scores"), py::arg("ground_truth"), py::arg("exclude"))
+        .def("Score", &Recommender::Score, py::arg("user"), py::arg("user_history"));
 
     py::class_<IALSppRecommender, Recommender>(m, "IALSppRecommender")
-        .def(py::init<int, int, int, float, float, float, float, int>())
-        .def("SetPrintTrainStats", &IALSppRecommender::SetPrintTrainStats)
-        .def("Train", &IALSppRecommender::Train)
-        .def("EvaluateDataset", &IALSppRecommender::EvaluateDataset)
-        .def("EvaluateUser", &IALSppRecommender::EvaluateUser)
-        .def("Score", &IALSppRecommender::Score);
+        .def(py::init<int, int, int, float, float, float, float, int>(),
+                py::arg("embedding_dim"),
+                py::arg("num_users"),
+                py::arg("num_items"),
+                py::arg("regularization"),
+                py::arg("regularization_exp"),
+                py::arg("unobserved_weight"),
+                py::arg("stddev"),
+                py::arg("block_size"),
+        )
+        .def("SetPrintTrainStats", &IALSppRecommender::SetPrintTrainStats, py::arg("print_train_stats"))
+        .def("Train", &IALSppRecommender::Train, py::arg("dataset"))
+        .def("EvaluateDataset", &IALSppRecommender::EvaluateDataset, py::arg("test_train_data"), py::arg("test_test_data"))
+        .def("EvaluateUser", &IALSppRecommender::EvaluateUser, py::arg("scores"), py::arg("ground_truth"), py::arg("exclude"))
+        .def("Score", &IALSppRecommender::Score, py::arg("user"), py::arg("user_history"));
 
     py::class_<Dataset>(m, "Dataset")
         .def(py::init<const std::string&, bool>(), py::arg("filename"), py::arg("string_id") = false)
@@ -50,9 +59,9 @@ PYBIND11_MODULE(ialspp, m) {
     
     py::class_<Encoder>(m, "Encoder")
         .def(py::init<>())
-        .def("insert", &Encoder::insert)
-        .def("encode", &Encoder::encode)
-        .def("decode", &Encoder::decode)
+        .def("insert", &Encoder::insert, py::arg("s"))
+        .def("encode", &Encoder::encode, py::arg("s"))
+        .def("decode", &Encoder::decode, py::arg("i"))
         .def("size", &Encoder::size);
 
     m.def("ProjectBlock", &ProjectBlock, "Project a block of embeddings");
