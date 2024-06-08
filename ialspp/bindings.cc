@@ -39,7 +39,7 @@ PYBIND11_MODULE(ialspp, m) {
                 py::arg("regularization_exp"),
                 py::arg("unobserved_weight"),
                 py::arg("stddev"),
-                py::arg("block_size"),
+                py::arg("block_size")
         )
         .def("SetPrintTrainStats", &IALSppRecommender::SetPrintTrainStats, py::arg("print_train_stats"))
         .def("Train", &IALSppRecommender::Train, py::arg("dataset"))
