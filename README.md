@@ -38,7 +38,7 @@ sudo apt update
 sudo apt install libeigen3-dev
 ```
 
-Finally, to install the package, you need to have `pybind11` and `Eigen` installed. You can install the package directly from the GitHub repository.
+Finally, you can install the package directly from the GitHub repository.
 
 ```bash
 pip install git+https://github.com/issilva5/ialspp_python.git
