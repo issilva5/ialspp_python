@@ -79,10 +79,10 @@ class Dataset {
 
     // Read the data.
     while (std::getline(infile, line)) {
-      
-      int pos = line.find(',');
-      users = line.substr(0, pos);
-      items = line.substr(pos + 1);
+
+      std::stringstream ss(line);
+      std::getline(ss, users, ',');
+      std::getline(ss, items, ',');
 
       if (!string_id) {
         user = std::atoi(users.c_str());
