@@ -34,32 +34,74 @@ using SpMatrix = std::unordered_map<int, SpVector>;
 
 class Encoder {
   public:
+
+    Encoder() {}
+
+    Encoder(int n, std::unordered_map<std::string, int> stoi, std::unordered_map<int, std::string> itos) {
+      n_ = n;
+      stoi_ = stoi;
+      itos_ = itos;
+    }
+
     int insert(std::string s) {
-      if(stoi.find(s) != stoi.end()) return stoi[s];
+      if(stoi_.find(s) != stoi_.end()) return stoi_[s];
 
-      stoi[s] = n;
-      itos[n] = s;
-      n++;
+      stoi_[s] = n_;
+      itos_[n_] = s;
+      n_++;
 
-      return stoi[s];
+      return stoi_[s];
     }
 
     int encode(std::string s) {
-      if(stoi.find(s) != stoi.end()) return stoi[s];
+      if(stoi_.find(s) != stoi_.end()) return stoi_[s];
       return -1;
     }
 
     std::string decode(int i) {
-      if(itos.find(i) != itos.end()) return itos[i];
+      if(itos_.find(i) != itos_.end()) return itos_[i];
       return "";
     }
 
-    const int size() const { return n; }
+    const int size() const { return n_; }
+
+    std::string serialize() const {
+      std::ostringstream oss;
+      oss << n_;
+      for (const auto& kv : stoi_) {
+          oss << " " << kv.first << " " << kv.second;
+      }
+      for (const auto& kv : itos_) {
+          oss << " " << kv.first << " " << kv.second;
+      }
+      return oss.str();
+    }
+
+    static Encoder deserialize(const std::string &state) {
+        std::istringstream iss(state);
+
+        int n;
+        std::unordered_map<std::string, int> stoi;
+        std::unordered_map<std::string, int> itos;
+        std::string key, vals;
+        int val, intkey;
+        iss >> n;
+
+        while (iss >> key >> val) {
+            stoi[key] = val;
+        }
+
+        while (iss >> intkey >> vals) {
+            itos[intkey] = vals;
+        }
+
+        return Encoder(n, stoi, itos);
+    }
   
   private:
-    std::unordered_map<std::string, int> stoi;
-    std::unordered_map<int, std::string> itos;
-    int n = 0;
+    std::unordered_map<std::string, int> stoi_;
+    std::unordered_map<int, std::string> itos_;
+    int n_ = 0;
 };
 
 class Dataset {

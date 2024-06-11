@@ -62,7 +62,14 @@ PYBIND11_MODULE(ialspp, m) {
         .def("insert", &Encoder::insert, py::arg("s"))
         .def("encode", &Encoder::encode, py::arg("s"))
         .def("decode", &Encoder::decode, py::arg("i"))
-        .def("size", &Encoder::size);
+        .def("size", &Encoder::size)
+        .def("__getstate__", [](const Encoder &self) {
+            return py::make_tuple(self.serialize());
+        })
+        .def("__setstate__", [](Encoder &self, py::tuple t) {
+            if (t.size() != 1) throw std::runtime_error("Invalid state!");
+            self = Encoder::deserialize(t[0].cast<std::string>());
+        });
 
     m.def("ProjectBlock", &ProjectBlock, "Project a block of embeddings");
 }
