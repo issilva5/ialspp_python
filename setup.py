@@ -39,7 +39,12 @@ def get_json_include_dir():
         except subprocess.CalledProcessError as e:
             raise RuntimeError("nlohmann-json not found via Homebrew. Make sure nlohmann-json is installed.") from e
     elif system == 'Linux':
-        raise NotImplementedError("Not implemented yet.")
+        try:
+            nlohmann_include_dir = "/usr/include/nlohmann"
+            if not os.path.exists(nlohmann_include_dir):
+                raise RuntimeError("nlohmann-json not found in /usr/include/nlohmann. Make sure nlohmann-json is installed.")
+        except Exception as e:
+            raise RuntimeError("nlohmann-json not found in /usr/include/nlohmann. Make sure nlohmann-json is installed.") from e
     else:
         raise RuntimeError("Unsupported operating system.")
     
