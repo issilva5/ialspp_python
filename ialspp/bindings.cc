@@ -49,12 +49,11 @@ PYBIND11_MODULE(ialspp, m) {
         .def(py::pickle(
             [](const IALSppRecommender &p) { // __getstate__
                 /* Return a tuple that fully encodes the state of the object */
-                return py::make_tuple(p.serialize());
+                return py::bytes(p.serialize());
             },
-            [](py::tuple t) { // __setstate__
-                if (t.size() != 1)
-                    throw std::runtime_error("Invalid state!");
-                return IALSppRecommender::deserialize(t[0].cast<std::string>());
+            [](py::bytes t) { // __setstate__
+                std::string state = t;
+                return IALSppRecommender::deserialize(state);
             }
         ));
 
