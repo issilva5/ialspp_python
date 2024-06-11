@@ -134,6 +134,20 @@ class Dataset {
               << std::endl;
   }
 
+  Dataset(int max_user, int max_item, int num_tuples, SpMatrix by_user, SpMatrix by_item, Encoder user_encoder,
+          Encoder item_encoder) {
+    
+    max_user_ = max_user;
+    max_item_ = max_item;
+    num_tuples_ = num_tuples;
+
+    by_user_ = by_user;
+    by_item_ = by_item;
+    user_encoder_ = user_encoder;
+    item_encoder_ = item_encoder;
+  
+  }
+
   const SpMatrix& by_user() const { return by_user_; }
   const SpMatrix& by_item() const { return by_item_; }
   const int max_user() const { return max_user_; }
@@ -141,6 +155,36 @@ class Dataset {
   const int num_tuples() const { return num_tuples_; }
   const Encoder& user_encoder() const { return user_encoder_; }
   const Encoder& item_encoder() const { return item_encoder_; }
+
+  std::string serialize() const {
+      json j;
+      j["by_user"] = by_user_;
+      j["by_item"] = by_item_;
+      j["user_encoder"] = user_encoder_.serialize();
+      j["item_encoder"] = item_encoder_.serialize();
+      j["max_user"] = max_user_;
+      j["max_item"] = max_item_;
+      j["num_tuples"] = num_tuples_;
+      return j.dump();
+  }
+
+  static Dataset deserialize(const std::string &state) {
+      json j = json::parse(state);
+
+      int max_user = j["max_user"];
+      int max_item = j["max_item"];
+      int num_tuples = j["num_tuples"];
+
+      SpMatrix by_user = j["by_user"].get<SpMatrix>();
+      SpMatrix by_item = j["by_item"].get<SpMatrix>();
+
+      Encoder user_encoder = Encoder::deserialize(j["user_encoder"]);
+      Encoder item_encoder = Encoder::deserialize(j["item_encoder"]);
+
+      std::unordered_map<std::string, int> stoi = j["stoi"].get<std::unordered_map<std::string, int>>();
+      std::unordered_map<int, std::string> itos = j["itos"].get<std::unordered_map<int, std::string>>();
+      return Dataset(max_user, max_item, num_tuples, by_user, by_item, user_encoder, item_encoder);
+  }
 
  private:
   SpMatrix by_user_;

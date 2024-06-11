@@ -55,7 +55,18 @@ PYBIND11_MODULE(ialspp, m) {
         .def("max_item", &Dataset::max_item)
         .def("user_encoder", &Dataset::user_encoder)
         .def("item_encoder", &Dataset::item_encoder)
-        .def("num_tuples", &Dataset::num_tuples);
+        .def("num_tuples", &Dataset::num_tuples)
+        .def(py::pickle(
+            [](const Dataset &p) { // __getstate__
+                /* Return a tuple that fully encodes the state of the object */
+                return py::make_tuple(p.serialize());
+            },
+            [](py::tuple t) { // __setstate__
+                if (t.size() != 1)
+                    throw std::runtime_error("Invalid state!");
+                return Dataset::deserialize(t[0].cast<std::string>());
+            }
+        ));
     
     py::class_<Encoder>(m, "Encoder")
         .def(py::init<>())
