@@ -82,7 +82,7 @@ class Encoder {
 
         int n;
         std::unordered_map<std::string, int> stoi;
-        std::unordered_map<std::string, int> itos;
+        std::unordered_map<int, std::string> itos;
         std::string key, vals;
         int val, intkey;
         iss >> n;
@@ -92,7 +92,7 @@ class Encoder {
         }
 
         while (iss >> intkey >> vals) {
-            itos[intkey] = vals;
+            itos[std::atoi(intkey.c_str())] = vals;
         }
 
         return Encoder(n, stoi, itos);
