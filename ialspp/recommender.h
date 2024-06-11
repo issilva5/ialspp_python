@@ -44,7 +44,6 @@ class Encoder {
       n_ = n;
       stoi_ = stoi;
       itos_ = itos;
-      std::cout << "Hi4" << std::endl;
     }
 
     int insert(std::string s) {
@@ -80,11 +79,8 @@ class Encoder {
     static Encoder deserialize(const std::string &state) {
         json j = json::parse(state);
         int n = j["n"];
-        std::cout << "Hi" << std::endl;
         std::unordered_map<std::string, int> stoi = j["stoi"].get<std::unordered_map<std::string, int>>();
-        std::cout << "Hi2" << std::endl;
         std::unordered_map<int, std::string> itos = j["itos"].get<std::unordered_map<int, std::string>>();
-        std::cout << "Hi3" << std::endl;
         return Encoder(n, stoi, itos);
     }
   
