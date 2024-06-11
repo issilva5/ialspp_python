@@ -666,6 +666,91 @@ class IALSppRecommender : public Recommender {
       item_embedding_ = item_embedding;
   }
 
+  std::string serialize() const {
+
+    std::ostringstream oss;
+
+    // Save embedding dimensions
+    int embedding_dim = recommender.embedding_dim();
+    oss.write(reinterpret_cast<const char*>(&embedding_dim), sizeof(int));
+
+    // Save user embedding
+    const Recommender::MatrixXf& user_embedding = recommender.user_embedding();
+    int num_users = user_embedding.rows();
+    oss.write(reinterpret_cast<const char*>(&num_users), sizeof(int));
+    oss.write(reinterpret_cast<const char*>(user_embedding.data()),
+                  user_embedding.rows() * user_embedding.cols() * sizeof(float));
+
+    // Save item embedding
+    const Recommender::MatrixXf& item_embedding = recommender.item_embedding();
+    int num_items = item_embedding.rows();
+    oss.write(reinterpret_cast<const char*>(&num_items), sizeof(int));
+    oss.write(reinterpret_cast<const char*>(item_embedding.data()),
+                  item_embedding.rows() * item_embedding.cols() * sizeof(float));
+
+    // Save additional parameters
+    // You'll need to replace these placeholders with the actual parameters
+    // Here, I'm using example values
+    float regularization = recommender.regularization();
+    float regularization_exp = recommender.regularization_exp();
+    float unobserved_weight = recommender.unobserved_weight();
+    int block_size = recommender.block_size();
+    oss.write(reinterpret_cast<const char*>(&regularization), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&regularization_exp), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&unobserved_weight), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&block_size), sizeof(int));
+
+    // Close the file
+    return oss.str()
+  }
+
+  static IALSppRecommender deserialize(const std::string &state) {
+    std::istringstream iss(state);
+
+    // Read embedding dimensions
+    int embedding_dim;
+    iss.read(reinterpret_cast<char*>(&embedding_dim), sizeof(int));
+
+    // Read user embedding
+    int num_users;
+    iss.read(reinterpret_cast<char*>(&num_users), sizeof(int));
+    Recommender::MatrixXf user_embedding(num_users, embedding_dim);
+    iss.read(reinterpret_cast<char*>(user_embedding.data()),
+                user_embedding.rows() * user_embedding.cols() * sizeof(float));
+
+    // Read item embedding
+    int num_items;
+    iss.read(reinterpret_cast<char*>(&num_items), sizeof(int));
+    Recommender::MatrixXf item_embedding(num_items, embedding_dim);
+    iss.read(reinterpret_cast<char*>(item_embedding.data()),
+                item_embedding.rows() * item_embedding.cols() * sizeof(float));
+
+    // Read additional parameters
+    float regularization, regularization_exp, unobserved_weight, stdev;
+    int block_size;
+    iss.read(reinterpret_cast<char*>(&regularization), sizeof(float));
+    iss.read(reinterpret_cast<char*>(&regularization_exp), sizeof(float));
+    iss.read(reinterpret_cast<char*>(&unobserved_weight), sizeof(float));
+    iss.read(reinterpret_cast<char*>(&block_size), sizeof(int));
+
+    IALSppRecommender* recommender;
+    recommender = new IALSppRecommender(
+      embedding_dim,
+      num_users,
+      num_items,
+      regularization,
+      regularization_exp,
+      unobserved_weight,
+      1,
+      block_size);
+    
+    recommender->SetUserEmbedding(user_embedding);
+    recommender->SetItemEmbedding(item_embedding);
+
+    // Create and return the recommender object
+    return recommender;
+  }
+
  private:
   MatrixXf user_embedding_;
   MatrixXf item_embedding_;
@@ -678,57 +763,6 @@ class IALSppRecommender : public Recommender {
 
   bool print_trainstats_;
 };
-
-// void SaveModel(const std::string& filename,
-//                const IALSppRecommender& recommender) {
-//     std::ofstream outfile(filename, std::ios::binary);
-//     if (!outfile.is_open()) {
-//         throw std::runtime_error("Failed to open file for writing");
-//     }
-
-//     // Write embedding dimensions
-//     int embedding_dim = recommender.embedding_dim();
-//     outfile.write(reinterpret_cast<const char*>(&embedding_dim), sizeof(int));
-
-//     // Write user embedding
-//     const Recommender::MatrixXf& user_embedding = recommender.user_embedding();
-//     outfile.write(reinterpret_cast<const char*>(user_embedding.data()),
-//                   user_embedding.rows() * user_embedding.cols() * sizeof(float));
-
-//     // Write item embedding
-//     const Recommender::MatrixXf& item_embedding = recommender.item_embedding();
-//     outfile.write(reinterpret_cast<const char*>(item_embedding.data()),
-//                   item_embedding.rows() * item_embedding.cols() * sizeof(float));
-
-//     // Close the file
-//     outfile.close();
-// }
-
-// void LoadModel(const std::string& filename, IALSppRecommender& recommender) {
-//     std::ifstream infile(filename, std::ios::binary);
-//     if (!infile.is_open()) {
-//         throw std::runtime_error("Failed to open file for reading");
-//     }
-
-//     // Read embedding dimensions
-//     int embedding_dim;
-//     infile.read(reinterpret_cast<char*>(&embedding_dim), sizeof(int));
-
-//     // Read user embedding
-//     Recommender::MatrixXf user_embedding(recommender.user_embedding().rows(), embedding_dim);
-//     infile.read(reinterpret_cast<char*>(user_embedding.data()),
-//                 user_embedding.rows() * user_embedding.cols() * sizeof(float));
-//     recommender.SetUserEmbedding(user_embedding);
-
-//     // Read item embedding
-//     Recommender::MatrixXf item_embedding(recommender.item_embedding().rows(), embedding_dim);
-//     infile.read(reinterpret_cast<char*>(item_embedding.data()),
-//                 item_embedding.rows() * item_embedding.cols() * sizeof(float));
-//     recommender.SetItemEmbedding(item_embedding);
-
-//     // Close the file
-//     infile.close();
-// }
 
 void SaveModel(const std::string& filename, const IALSppRecommender& recommender) {
     std::ofstream outfile(filename, std::ios::binary);

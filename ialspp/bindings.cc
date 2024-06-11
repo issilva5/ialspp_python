@@ -45,7 +45,18 @@ PYBIND11_MODULE(ialspp, m) {
         .def("Train", &IALSppRecommender::Train, py::arg("dataset"))
         .def("EvaluateDataset", &IALSppRecommender::EvaluateDataset, py::arg("test_train_data"), py::arg("test_test_data"))
         .def("EvaluateUser", &IALSppRecommender::EvaluateUser, py::arg("scores"), py::arg("ground_truth"), py::arg("exclude"))
-        .def("Score", &IALSppRecommender::Score, py::arg("user"), py::arg("user_history"));
+        .def("Score", &IALSppRecommender::Score, py::arg("user"), py::arg("user_history"))
+        .def(py::pickle(
+            [](const IALSppRecommender &p) { // __getstate__
+                /* Return a tuple that fully encodes the state of the object */
+                return py::make_tuple(p.serialize());
+            },
+            [](py::tuple t) { // __setstate__
+                if (t.size() != 1)
+                    throw std::runtime_error("Invalid state!");
+                return IALSppRecommender::deserialize(t[0].cast<std::string>());
+            }
+        ));
 
     py::class_<Dataset>(m, "Dataset")
         .def(py::init<const std::string&, bool>(), py::arg("filename"), py::arg("string_id") = false)
