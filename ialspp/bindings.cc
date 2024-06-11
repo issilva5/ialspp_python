@@ -68,7 +68,8 @@ PYBIND11_MODULE(ialspp, m) {
         })
         .def("__setstate__", [](Encoder &self, py::tuple t) {
             if (t.size() != 1) throw std::runtime_error("Invalid state!");
-            self = Encoder::deserialize(t[0].cast<std::string>());
+            Encoder temp = Encoder::deserialize(t[0].cast<std::string>());
+            self = std::move(temp);
         });
 
     m.def("ProjectBlock", &ProjectBlock, "Project a block of embeddings");
