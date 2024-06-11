@@ -700,8 +700,7 @@ class IALSppRecommender : public Recommender {
     oss.write(reinterpret_cast<const char*>(&unobserved_weight), sizeof(float));
     oss.write(reinterpret_cast<const char*>(&block_size), sizeof(int));
 
-    // Close the file
-    return oss.str()
+    return oss.str();
   }
 
   static IALSppRecommender deserialize(const std::string &state) {
