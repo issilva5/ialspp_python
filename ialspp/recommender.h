@@ -44,6 +44,7 @@ class Encoder {
       n_ = n;
       stoi_ = stoi;
       itos_ = itos;
+      std::cout << "Hi4" << std::endl;
     }
 
     int insert(std::string s) {
