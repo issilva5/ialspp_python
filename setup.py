@@ -35,9 +35,9 @@ def get_json_include_dir():
     if system == 'Darwin':  # macOS
         try:
             nlohmann_path = subprocess.check_output(["brew", "--prefix", "nlohmann-json"]).strip().decode("utf-8")
-            nlohmann_include_dir = os.path.join(nlohmann_path, "include/nlohmann")
+            nlohmann_include_dir = os.path.join(nlohmann_path, "include")
         except subprocess.CalledProcessError as e:
-            raise RuntimeError("Eigen not found via Homebrew. Make sure nlohmann-json is installed.") from e
+            raise RuntimeError("nlohmann-json not found via Homebrew. Make sure nlohmann-json is installed.") from e
     elif system == 'Linux':
         raise NotImplementedError("Not implemented yet.")
     else:
