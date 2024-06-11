@@ -28,8 +28,26 @@ def get_eigen_include_dir():
     
     return eigen_include_dir
 
+
+def get_json_include_dir():
+    system = platform.system()
+    
+    if system == 'Darwin':  # macOS
+        try:
+            nlohmann_path = subprocess.check_output(["brew", "--prefix", "nlohmann-json"]).strip().decode("utf-8")
+            nlohmann_include_dir = os.path.join(nlohmann_path, "include/nlohmann")
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("Eigen not found via Homebrew. Make sure nlohmann-json is installed.") from e
+    elif system == 'Linux':
+        raise NotImplementedError("Not implemented yet.")
+    else:
+        raise RuntimeError("Unsupported operating system.")
+    
+    return nlohmann_include_dir
+
 # Get the Eigen path using Homebrew
 eigen_include_dir = get_eigen_include_dir()
+json_include_dir = get_json_include_dir()
 
 ext_modules = [
     Extension(
@@ -38,7 +56,7 @@ ext_modules = [
             'ialspp/bindings.cc',
             # Add other source files here
         ],
-        include_dirs=[pybind11.get_include(), eigen_include_dir],
+        include_dirs=[pybind11.get_include(), eigen_include_dir, json_include_dir],
         extra_compile_args=['-std=c++11', '-O3', '-Wall'],
         language='c++'
     ),

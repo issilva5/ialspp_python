@@ -29,6 +29,9 @@
 #include "Eigen/Dense"
 #include "Eigen/Core"
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 using SpVector = std::vector<std::pair<int, int>>;
 using SpMatrix = std::unordered_map<int, SpVector>;
 
@@ -66,35 +69,18 @@ class Encoder {
     const int size() const { return n_; }
 
     std::string serialize() const {
-      std::ostringstream oss;
-      oss << n_;
-      for (const auto& kv : stoi_) {
-          oss << " " << kv.first << " " << kv.second;
-      }
-      for (const auto& kv : itos_) {
-          oss << " " << kv.first << " " << kv.second;
-      }
-      return oss.str();
+      json j;
+      j["n"] = n_;
+      j["stoi"] = stoi_;
+      j["itos"] = itos_;
+      return j.dump();
     }
 
     static Encoder deserialize(const std::string &state) {
-        std::istringstream iss(state);
-
-        int n;
-        std::unordered_map<std::string, int> stoi;
-        std::unordered_map<int, std::string> itos;
-        std::string key, vals;
-        int val, intkey;
-        iss >> n;
-
-        while (iss >> key >> val) {
-            stoi[key] = val;
-        }
-
-        while (iss >> intkey >> vals) {
-            itos[intkey] = vals;
-        }
-
+        json j = json::parse(state);
+        int n = j["n"];
+        std::unordered_map<std::string, int> stoi = j["stoi"].get<std::unordered_map<std::string, int>>();
+        std::unordered_map<int, std::string> itos = j["itos"].get<std::unordered_map<int, std::string>>();
         return Encoder(n, stoi, itos);
     }
   
