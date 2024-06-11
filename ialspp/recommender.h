@@ -92,7 +92,7 @@ class Encoder {
         }
 
         while (iss >> intkey >> vals) {
-            itos[std::atoi(intkey.c_str())] = vals;
+            itos[intkey] = vals;
         }
 
         return Encoder(n, stoi, itos);
