@@ -30,12 +30,13 @@ Make sure to install the necessary dependencies:
 For MacOS:
 ```bash
 brew install eigen
+brew install nlohmann-json
 ```
 
 For Debian-based Linux:
 ```bash
 sudo apt update
-sudo apt install libeigen3-dev
+sudo apt install libeigen3-dev nlohmann-json3-dev
 ```
 
 Finally, you can install the package directly from the GitHub repository.
