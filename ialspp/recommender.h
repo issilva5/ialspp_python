@@ -747,7 +747,7 @@ class IALSppRecommender : public Recommender {
     recommender->SetItemEmbedding(item_embedding);
 
     // Create and return the recommender object
-    return recommender;
+    return *recommender;
   }
 
  private:
