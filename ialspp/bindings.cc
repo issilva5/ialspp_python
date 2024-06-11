@@ -45,7 +45,17 @@ PYBIND11_MODULE(ialspp, m) {
         .def("Train", &IALSppRecommender::Train, py::arg("dataset"))
         .def("EvaluateDataset", &IALSppRecommender::EvaluateDataset, py::arg("test_train_data"), py::arg("test_test_data"))
         .def("EvaluateUser", &IALSppRecommender::EvaluateUser, py::arg("scores"), py::arg("ground_truth"), py::arg("exclude"))
-        .def("Score", &IALSppRecommender::Score, py::arg("user"), py::arg("user_history"));
+        .def("Score", &IALSppRecommender::Score, py::arg("user"), py::arg("user_history"))
+        .def(py::pickle(
+            [](const IALSppRecommender &p) { // __getstate__
+                /* Return a tuple that fully encodes the state of the object */
+                return py::bytes(p.serialize());
+            },
+            [](py::bytes t) { // __setstate__
+                std::string state = t;
+                return IALSppRecommender::deserialize(state);
+            }
+        ));
 
     py::class_<Dataset>(m, "Dataset")
         .def(py::init<const std::string&, bool>(), py::arg("filename"), py::arg("string_id") = false)
@@ -55,14 +65,36 @@ PYBIND11_MODULE(ialspp, m) {
         .def("max_item", &Dataset::max_item)
         .def("user_encoder", &Dataset::user_encoder)
         .def("item_encoder", &Dataset::item_encoder)
-        .def("num_tuples", &Dataset::num_tuples);
+        .def("num_tuples", &Dataset::num_tuples)
+        .def(py::pickle(
+            [](const Dataset &p) { // __getstate__
+                /* Return a tuple that fully encodes the state of the object */
+                return py::make_tuple(p.serialize());
+            },
+            [](py::tuple t) { // __setstate__
+                if (t.size() != 1)
+                    throw std::runtime_error("Invalid state!");
+                return Dataset::deserialize(t[0].cast<std::string>());
+            }
+        ));
     
     py::class_<Encoder>(m, "Encoder")
         .def(py::init<>())
         .def("insert", &Encoder::insert, py::arg("s"))
         .def("encode", &Encoder::encode, py::arg("s"))
         .def("decode", &Encoder::decode, py::arg("i"))
-        .def("size", &Encoder::size);
+        .def("size", &Encoder::size)
+        .def(py::pickle(
+            [](const Encoder &p) { // __getstate__
+                /* Return a tuple that fully encodes the state of the object */
+                return py::make_tuple(p.serialize());
+            },
+            [](py::tuple t) { // __setstate__
+                if (t.size() != 1)
+                    throw std::runtime_error("Invalid state!");
+                return Encoder::deserialize(t[0].cast<std::string>());
+            }
+        ));
 
     m.def("ProjectBlock", &ProjectBlock, "Project a block of embeddings");
 }

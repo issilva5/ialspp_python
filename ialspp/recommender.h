@@ -29,37 +29,65 @@
 #include "Eigen/Dense"
 #include "Eigen/Core"
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 using SpVector = std::vector<std::pair<int, int>>;
 using SpMatrix = std::unordered_map<int, SpVector>;
 
 class Encoder {
   public:
+
+    Encoder() {}
+
+    Encoder(int n, std::unordered_map<std::string, int> stoi, std::unordered_map<int, std::string> itos) {
+      n_ = n;
+      stoi_ = stoi;
+      itos_ = itos;
+    }
+
     int insert(std::string s) {
-      if(stoi.find(s) != stoi.end()) return stoi[s];
+      if(stoi_.find(s) != stoi_.end()) return stoi_[s];
 
-      stoi[s] = n;
-      itos[n] = s;
-      n++;
+      stoi_[s] = n_;
+      itos_[n_] = s;
+      n_++;
 
-      return stoi[s];
+      return stoi_[s];
     }
 
     int encode(std::string s) {
-      if(stoi.find(s) != stoi.end()) return stoi[s];
+      if(stoi_.find(s) != stoi_.end()) return stoi_[s];
       return -1;
     }
 
     std::string decode(int i) {
-      if(itos.find(i) != itos.end()) return itos[i];
+      if(itos_.find(i) != itos_.end()) return itos_[i];
       return "";
     }
 
-    const int size() const { return n; }
+    const int size() const { return n_; }
+
+    std::string serialize() const {
+      json j;
+      j["n"] = n_;
+      j["stoi"] = stoi_;
+      j["itos"] = itos_;
+      return j.dump();
+    }
+
+    static Encoder deserialize(const std::string &state) {
+        json j = json::parse(state);
+        int n = j["n"];
+        std::unordered_map<std::string, int> stoi = j["stoi"].get<std::unordered_map<std::string, int>>();
+        std::unordered_map<int, std::string> itos = j["itos"].get<std::unordered_map<int, std::string>>();
+        return Encoder(n, stoi, itos);
+    }
   
   private:
-    std::unordered_map<std::string, int> stoi;
-    std::unordered_map<int, std::string> itos;
-    int n = 0;
+    std::unordered_map<std::string, int> stoi_;
+    std::unordered_map<int, std::string> itos_;
+    int n_ = 0;
 };
 
 class Dataset {
@@ -106,6 +134,20 @@ class Dataset {
               << std::endl;
   }
 
+  Dataset(int max_user, int max_item, int num_tuples, SpMatrix by_user, SpMatrix by_item, Encoder user_encoder,
+          Encoder item_encoder) {
+    
+    max_user_ = max_user;
+    max_item_ = max_item;
+    num_tuples_ = num_tuples;
+
+    by_user_ = by_user;
+    by_item_ = by_item;
+    user_encoder_ = user_encoder;
+    item_encoder_ = item_encoder;
+  
+  }
+
   const SpMatrix& by_user() const { return by_user_; }
   const SpMatrix& by_item() const { return by_item_; }
   const int max_user() const { return max_user_; }
@@ -113,6 +155,34 @@ class Dataset {
   const int num_tuples() const { return num_tuples_; }
   const Encoder& user_encoder() const { return user_encoder_; }
   const Encoder& item_encoder() const { return item_encoder_; }
+
+  std::string serialize() const {
+      json j;
+      j["by_user"] = by_user_;
+      j["by_item"] = by_item_;
+      j["user_encoder"] = user_encoder_.serialize();
+      j["item_encoder"] = item_encoder_.serialize();
+      j["max_user"] = max_user_;
+      j["max_item"] = max_item_;
+      j["num_tuples"] = num_tuples_;
+      return j.dump();
+  }
+
+  static Dataset deserialize(const std::string &state) {
+      json j = json::parse(state);
+
+      int max_user = j["max_user"];
+      int max_item = j["max_item"];
+      int num_tuples = j["num_tuples"];
+
+      SpMatrix by_user = j["by_user"].get<SpMatrix>();
+      SpMatrix by_item = j["by_item"].get<SpMatrix>();
+
+      Encoder user_encoder = Encoder::deserialize(j["user_encoder"]);
+      Encoder item_encoder = Encoder::deserialize(j["item_encoder"]);
+
+      return Dataset(max_user, max_item, num_tuples, by_user, by_item, user_encoder, item_encoder);
+  }
 
  private:
   SpMatrix by_user_;
@@ -596,6 +666,83 @@ class IALSppRecommender : public Recommender {
       item_embedding_ = item_embedding;
   }
 
+  std::string serialize() const {
+
+    std::ostringstream oss;
+
+    // Save embedding dimensions
+    oss.write(reinterpret_cast<const char*>(&embedding_dim_), sizeof(int));
+
+    // Save user embedding
+    int num_users = user_embedding_.rows();
+    oss.write(reinterpret_cast<const char*>(&num_users), sizeof(int));
+    oss.write(reinterpret_cast<const char*>(user_embedding_.data()),
+                  user_embedding_.rows() * user_embedding_.cols() * sizeof(float));
+
+    // Save item embedding
+    int num_items = item_embedding_.rows();
+    oss.write(reinterpret_cast<const char*>(&num_items), sizeof(int));
+    oss.write(reinterpret_cast<const char*>(item_embedding_.data()),
+                  item_embedding_.rows() * item_embedding_.cols() * sizeof(float));
+
+    // Save additional parameters
+    // You'll need to replace these placeholders with the actual parameters
+    // Here, I'm using example values
+    oss.write(reinterpret_cast<const char*>(&regularization_), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&regularization_exp_), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&unobserved_weight_), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&block_size_), sizeof(int));
+
+    return oss.str();
+  }
+
+  static IALSppRecommender deserialize(const std::string &state) {
+    std::istringstream iss(state);
+
+    // Read embedding dimensions
+    int embedding_dim;
+    iss.read(reinterpret_cast<char*>(&embedding_dim), sizeof(int));
+
+    // Read user embedding
+    int num_users;
+    iss.read(reinterpret_cast<char*>(&num_users), sizeof(int));
+    Recommender::MatrixXf user_embedding(num_users, embedding_dim);
+    iss.read(reinterpret_cast<char*>(user_embedding.data()),
+                user_embedding.rows() * user_embedding.cols() * sizeof(float));
+
+    // Read item embedding
+    int num_items;
+    iss.read(reinterpret_cast<char*>(&num_items), sizeof(int));
+    Recommender::MatrixXf item_embedding(num_items, embedding_dim);
+    iss.read(reinterpret_cast<char*>(item_embedding.data()),
+                item_embedding.rows() * item_embedding.cols() * sizeof(float));
+
+    // Read additional parameters
+    float regularization, regularization_exp, unobserved_weight, stdev;
+    int block_size;
+    iss.read(reinterpret_cast<char*>(&regularization), sizeof(float));
+    iss.read(reinterpret_cast<char*>(&regularization_exp), sizeof(float));
+    iss.read(reinterpret_cast<char*>(&unobserved_weight), sizeof(float));
+    iss.read(reinterpret_cast<char*>(&block_size), sizeof(int));
+
+    IALSppRecommender* recommender;
+    recommender = new IALSppRecommender(
+      embedding_dim,
+      num_users,
+      num_items,
+      regularization,
+      regularization_exp,
+      unobserved_weight,
+      1,
+      block_size);
+    
+    recommender->SetUserEmbedding(user_embedding);
+    recommender->SetItemEmbedding(item_embedding);
+
+    // Create and return the recommender object
+    return *recommender;
+  }
+
  private:
   MatrixXf user_embedding_;
   MatrixXf item_embedding_;
@@ -608,57 +755,6 @@ class IALSppRecommender : public Recommender {
 
   bool print_trainstats_;
 };
-
-// void SaveModel(const std::string& filename,
-//                const IALSppRecommender& recommender) {
-//     std::ofstream outfile(filename, std::ios::binary);
-//     if (!outfile.is_open()) {
-//         throw std::runtime_error("Failed to open file for writing");
-//     }
-
-//     // Write embedding dimensions
-//     int embedding_dim = recommender.embedding_dim();
-//     outfile.write(reinterpret_cast<const char*>(&embedding_dim), sizeof(int));
-
-//     // Write user embedding
-//     const Recommender::MatrixXf& user_embedding = recommender.user_embedding();
-//     outfile.write(reinterpret_cast<const char*>(user_embedding.data()),
-//                   user_embedding.rows() * user_embedding.cols() * sizeof(float));
-
-//     // Write item embedding
-//     const Recommender::MatrixXf& item_embedding = recommender.item_embedding();
-//     outfile.write(reinterpret_cast<const char*>(item_embedding.data()),
-//                   item_embedding.rows() * item_embedding.cols() * sizeof(float));
-
-//     // Close the file
-//     outfile.close();
-// }
-
-// void LoadModel(const std::string& filename, IALSppRecommender& recommender) {
-//     std::ifstream infile(filename, std::ios::binary);
-//     if (!infile.is_open()) {
-//         throw std::runtime_error("Failed to open file for reading");
-//     }
-
-//     // Read embedding dimensions
-//     int embedding_dim;
-//     infile.read(reinterpret_cast<char*>(&embedding_dim), sizeof(int));
-
-//     // Read user embedding
-//     Recommender::MatrixXf user_embedding(recommender.user_embedding().rows(), embedding_dim);
-//     infile.read(reinterpret_cast<char*>(user_embedding.data()),
-//                 user_embedding.rows() * user_embedding.cols() * sizeof(float));
-//     recommender.SetUserEmbedding(user_embedding);
-
-//     // Read item embedding
-//     Recommender::MatrixXf item_embedding(recommender.item_embedding().rows(), embedding_dim);
-//     infile.read(reinterpret_cast<char*>(item_embedding.data()),
-//                 item_embedding.rows() * item_embedding.cols() * sizeof(float));
-//     recommender.SetItemEmbedding(item_embedding);
-
-//     // Close the file
-//     infile.close();
-// }
 
 void SaveModel(const std::string& filename, const IALSppRecommender& recommender) {
     std::ofstream outfile(filename, std::ios::binary);
