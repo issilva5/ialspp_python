@@ -671,34 +671,27 @@ class IALSppRecommender : public Recommender {
     std::ostringstream oss;
 
     // Save embedding dimensions
-    int embedding_dim = recommender.embedding_dim();
-    oss.write(reinterpret_cast<const char*>(&embedding_dim), sizeof(int));
+    oss.write(reinterpret_cast<const char*>(&embedding_dim_), sizeof(int));
 
     // Save user embedding
-    const Recommender::MatrixXf& user_embedding = recommender.user_embedding();
-    int num_users = user_embedding.rows();
+    int num_users = user_embedding_.rows();
     oss.write(reinterpret_cast<const char*>(&num_users), sizeof(int));
-    oss.write(reinterpret_cast<const char*>(user_embedding.data()),
-                  user_embedding.rows() * user_embedding.cols() * sizeof(float));
+    oss.write(reinterpret_cast<const char*>(user_embedding_.data()),
+                  user_embedding_.rows() * user_embedding_.cols() * sizeof(float));
 
     // Save item embedding
-    const Recommender::MatrixXf& item_embedding = recommender.item_embedding();
-    int num_items = item_embedding.rows();
+    int num_items = item_embedding_.rows();
     oss.write(reinterpret_cast<const char*>(&num_items), sizeof(int));
-    oss.write(reinterpret_cast<const char*>(item_embedding.data()),
-                  item_embedding.rows() * item_embedding.cols() * sizeof(float));
+    oss.write(reinterpret_cast<const char*>(item_embedding_.data()),
+                  item_embedding_.rows() * item_embedding_.cols() * sizeof(float));
 
     // Save additional parameters
     // You'll need to replace these placeholders with the actual parameters
     // Here, I'm using example values
-    float regularization = recommender.regularization();
-    float regularization_exp = recommender.regularization_exp();
-    float unobserved_weight = recommender.unobserved_weight();
-    int block_size = recommender.block_size();
-    oss.write(reinterpret_cast<const char*>(&regularization), sizeof(float));
-    oss.write(reinterpret_cast<const char*>(&regularization_exp), sizeof(float));
-    oss.write(reinterpret_cast<const char*>(&unobserved_weight), sizeof(float));
-    oss.write(reinterpret_cast<const char*>(&block_size), sizeof(int));
+    oss.write(reinterpret_cast<const char*>(&regularization_), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&regularization_exp_), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&unobserved_weight_), sizeof(float));
+    oss.write(reinterpret_cast<const char*>(&block_size_), sizeof(int));
 
     return oss.str();
   }
