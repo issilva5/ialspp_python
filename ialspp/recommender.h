@@ -181,8 +181,6 @@ class Dataset {
       Encoder user_encoder = Encoder::deserialize(j["user_encoder"]);
       Encoder item_encoder = Encoder::deserialize(j["item_encoder"]);
 
-      std::unordered_map<std::string, int> stoi = j["stoi"].get<std::unordered_map<std::string, int>>();
-      std::unordered_map<int, std::string> itos = j["itos"].get<std::unordered_map<int, std::string>>();
       return Dataset(max_user, max_item, num_tuples, by_user, by_item, user_encoder, item_encoder);
   }
 
