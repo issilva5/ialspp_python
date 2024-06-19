@@ -58,7 +58,7 @@ PYBIND11_MODULE(ialspp, m) {
         ));
 
     py::class_<Dataset>(m, "Dataset")
-        .def(py::init<const std::string&, bool>(), py::arg("filename"), py::arg("string_id") = false)
+        .def(py::init<const std::string&, char, bool>(), py::arg("filename"), py::arg("delim"), py::arg("string_id") = false)
         .def("by_user", &Dataset::by_user)
         .def("by_item", &Dataset::by_item)
         .def("max_user", &Dataset::max_user)

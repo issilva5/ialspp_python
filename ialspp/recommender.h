@@ -92,7 +92,7 @@ class Encoder {
 
 class Dataset {
  public:
-  Dataset(const std::string& filename, bool string_id = false) {
+  Dataset(const std::string& filename, char delim, bool string_id = false) {
     max_user_ = -1;
     max_item_ = -1;
     num_tuples_ = 0;
@@ -109,8 +109,8 @@ class Dataset {
     while (std::getline(infile, line)) {
 
       std::stringstream ss(line);
-      std::getline(ss, users, ',');
-      std::getline(ss, items, ',');
+      std::getline(ss, users, delim);
+      std::getline(ss, items, delim);
 
       if (!string_id) {
         user = std::atoi(users.c_str());
