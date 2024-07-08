@@ -555,7 +555,7 @@ class IALSppRecommender : public Recommender {
     losses["Unobserved"] = loss_unobserved;
     losses["Regularization"] = loss_reg;
     losses["Time"] = std::chrono::duration_cast<std::chrono::milliseconds>(
-               time_end - time_start);
+               time_end - time_start).count();
 
     return losses;
   }
