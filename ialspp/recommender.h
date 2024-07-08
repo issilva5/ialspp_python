@@ -550,11 +550,11 @@ class IALSppRecommender : public Recommender {
     auto time_end = std::chrono::steady_clock::now();
 
     std::unordered_map<std::string, float> losses;
-    losses['Loss'] = loss;
-    losses['Observed'] = loss_observed;
-    losses['Unobserved'] = loss_unobserved;
-    losses['Regularization'] = loss_reg;
-    losses['Time'] = std::chrono::duration_cast<std::chrono::milliseconds>(
+    losses["Loss"] = loss;
+    losses["Observed"] = loss_observed;
+    losses["Unobserved"] = loss_unobserved;
+    losses["Regularization"] = loss_reg;
+    losses["Time"] = std::chrono::duration_cast<std::chrono::milliseconds>(
                time_end - time_start);
 
     return losses;
