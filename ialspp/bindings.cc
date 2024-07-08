@@ -41,8 +41,8 @@ PYBIND11_MODULE(ialspp, m) {
                 py::arg("stddev"),
                 py::arg("block_size")
         )
-        .def("SetPrintTrainStats", &IALSppRecommender::SetPrintTrainStats, py::arg("print_train_stats"))
         .def("Train", &IALSppRecommender::Train, py::arg("dataset"))
+        .def("ComputeLosses", &IALSppRecommender::ComputeLosses, py::arg("dataset"), py::arg("train_prediction"))
         .def("EvaluateDataset", &IALSppRecommender::EvaluateDataset, py::arg("test_train_data"), py::arg("test_test_data"))
         .def("EvaluateUser", &IALSppRecommender::EvaluateUser, py::arg("scores"), py::arg("ground_truth"), py::arg("exclude"))
         .def("Score", &IALSppRecommender::Score, py::arg("user"), py::arg("user_history"))
