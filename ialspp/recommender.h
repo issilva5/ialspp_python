@@ -486,7 +486,7 @@ class IALSppRecommender : public Recommender {
         });
   }
 
-  void Train(const Dataset& data) override {
+  VectorXf Train(const Dataset& data) override {
     // Predict the dataset.
     VectorXf prediction(data.num_tuples());
     for (const auto& user_and_history : data.by_user()) {
@@ -507,7 +507,6 @@ class IALSppRecommender : public Recommender {
           },
           item_embedding_,
           /*index_of_item_bias=*/1);
-      ComputeLosses(data, prediction);
 
       // Optimize the item embeddings
       Step(data.by_item(), start, end, &prediction,
@@ -516,14 +515,12 @@ class IALSppRecommender : public Recommender {
           },
           user_embedding_,
           /*index_of_item_bias=*/0);
-      ComputeLosses(data, prediction);
     }
+
+    return prediction;
   }
 
-  void ComputeLosses(const Dataset& data, const VectorXf& prediction) {
-    if (!print_trainstats_) {
-      return;
-    }
+  std::unordered_map<std::string, float> ComputeLosses(const Dataset& data, const VectorXf& prediction) {
     auto time_start = std::chrono::steady_clock::now();
     int num_items = item_embedding_.rows();
     int num_users = user_embedding_.rows();
@@ -552,10 +549,15 @@ class IALSppRecommender : public Recommender {
 
     auto time_end = std::chrono::steady_clock::now();
 
-    printf("Loss=%f, Loss_observed=%f Loss_unobserved=%f Loss_reg=%f Time=%d\n",
-           loss, loss_observed, loss_unobserved, loss_reg,
-           std::chrono::duration_cast<std::chrono::milliseconds>(
-               time_end - time_start));
+    std::unordered_map<std::string, float> losses;
+    losses['Loss'] = loss;
+    losses['Observed'] = loss_observed;
+    losses['Unobserved'] = loss_unobserved;
+    losses['Regularization'] = loss_reg;
+    losses['Time'] = std::chrono::duration_cast<std::chrono::milliseconds>(
+               time_end - time_start);
+
+    return losses;
   }
 
   // Computes the regularization value for a user (or item). The value depends
@@ -654,10 +656,6 @@ class IALSppRecommender : public Recommender {
 
   const int block_size() const { return block_size_; }
 
-  void SetPrintTrainStats(const bool print_trainstats) {
-    print_trainstats_ = print_trainstats;
-  }
-
   void SetUserEmbedding(const MatrixXf& user_embedding) {
         user_embedding_ = user_embedding;
   }
@@ -753,7 +751,6 @@ class IALSppRecommender : public Recommender {
   float unobserved_weight_;
   int block_size_;
 
-  bool print_trainstats_;
 };
 
 void SaveModel(const std::string& filename, const IALSppRecommender& recommender) {
