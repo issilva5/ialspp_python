@@ -76,8 +76,8 @@ recommender = ialspp.IALSppRecommender(
     stddev=0.1,
     block_size=128
 )
-recommender.SetPrintTrainStats(1)
-recommender.Train(train_data)
+p = recommender.Train(train_data)
+print(recommender.ComputeLosses(train_data, p)) # Print losses information
 ```
 
 ### Evaluating the Recommender
