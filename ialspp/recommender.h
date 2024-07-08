@@ -206,7 +206,7 @@ class Recommender {
     return VectorXf::Zero(1);
   }
 
-  virtual void Train(const Dataset& dataset) {}
+  virtual VectorXf Train(const Dataset& dataset) {}
 
   VectorXf EvaluateUser(const VectorXf& all_scores,
                         const SpVector& ground_truth,
